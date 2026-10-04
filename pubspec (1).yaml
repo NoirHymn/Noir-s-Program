@@ -1,0 +1,22 @@
+name: workout_schedule
+description: جدول التمرين الأسبوعي
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.10.0
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.1
+flutter:
+  uses-material-design: false
+  assets:
+    - assets/index.html
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+  adaptive_icon_background: "assets/icon_bg.png"
+  adaptive_icon_foreground: "assets/icon_fg.png"
