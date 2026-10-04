@@ -149,6 +149,22 @@ h3{font-family:var(--head);font-weight:800;font-size:13px;letter-spacing:.04em;c
 .em svg{display:block;width:var(--s);height:var(--s);fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .em{position:absolute;bottom:-12%;opacity:0;left:var(--x);animation:fl var(--d) ease-out var(--dl) forwards;will-change:transform,opacity}
 @keyframes fl{0%{opacity:0;transform:translateY(0) rotate(0)}12%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(-115vh) rotate(var(--r))}}
+
+/* ===== radar ===== */
+.radar{margin:18px 0 6px;padding:12px 8px 10px;border-radius:20px;background:var(--recess)}
+.radar h4{margin:2px 10px 0;font-family:var(--head);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--muted)}
+.radar svg{display:block;width:100%;height:auto}
+.rg{fill:none;stroke:rgba(255,255,255,.09);stroke-width:1}
+.rax{stroke:rgba(255,255,255,.07);stroke-width:1}
+.rpoly{fill:var(--dcs);stroke:var(--dcl);stroke-width:2.4;stroke-linejoin:round;transform-origin:170px 140px}
+.rdot{fill:var(--dcl)}
+.rn{margin:2px 10px 0;font-size:11px;color:var(--muted);opacity:.7}
+.rl{font-family:var(--head);font-weight:800;font-size:13px;fill:var(--muted)}
+.rl.top{fill:var(--fg)}
+.rv{font-family:var(--head);font-weight:700;font-size:11px;fill:var(--muted);opacity:.85}
+.panel.enter .rpoly{animation:rgrow .8s cubic-bezier(.2,.8,.2,1) both}
+.panel.enter .rdot{animation:fade .8s ease both}
+@keyframes rgrow{from{transform:scale(.15);opacity:0}to{transform:scale(1);opacity:1}}
 </style></head><body>
 <div class="blobs" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 <div id="intro" aria-hidden="true"><div class="it"><span id="itx"></span><b></b></div></div>
@@ -316,6 +332,52 @@ placeInd();
 panels[0].classList.add('enter');
 
 
+
+/* ---------- focus radar ---------- */
+(function(){
+  const G=[
+    ['رجل',['quad','ham','glute','calf','adduct']],
+    ['ظهر',['lat','midback','trap']],
+    ['صدر',['chest']],
+    ['بطن',['abs']],
+    ['كتف',['front','side','rear']],
+    ['ذراع',['biceps','triceps','forearm']]
+  ];
+  const CX=170,CY=140,R=84,NS='http://www.w3.org/2000/svg';
+  const ang=i=>(Math.PI/180)*(180+60*i);
+  const pt=(i,r)=>[CX+Math.cos(ang(i))*r, CY+Math.sin(ang(i))*r];
+  const pts=a=>a.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  panels.forEach(panel=>{
+    const sc=G.map(()=>0), dr=G.map(()=>0);
+    const cat=m=>G.findIndex(g=>g[1].includes(m));
+    $$('.exbtn',panel).forEach(b=>{
+      const sets=parseInt((b.querySelector('.sets')||{}).textContent)||3;
+      const w=G.map(()=>0);
+      const add=(m,wt)=>{const k=cat(m); if(k>=0)w[k]=Math.max(w[k],wt);};
+      add(b.dataset.p,1);
+      (b.dataset.s||'').split(',').filter(Boolean).forEach(m=>add(m,.35));
+      w.forEach((x,k)=>{sc[k]+=x*sets;});
+      const pk=cat(b.dataset.p); if(pk>=0)dr[pk]+=sets;
+    });
+    const tot=sc.reduce((a,b)=>a+b,0)||1, mx=Math.max(...sc)||1, top=sc.indexOf(mx);
+    let h='<svg viewBox="0 0 340 290" style="direction:ltr" role="img" aria-label="تركيز الروتين على العضلات">';
+    for(let r=1;r<=5;r++)h+='<polygon class="rg" points="'+pts(G.map((_,i)=>pt(i,R*r/5)))+'"/>';
+    G.forEach((_,i)=>{const p=pt(i,R);h+='<line class="rax" x1="'+CX+'" y1="'+CY+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'"/>';});
+    const dp=sc.map((v,i)=>pt(i,R*Math.max(v/mx,.04)));
+    h+='<polygon class="rpoly" points="'+pts(dp)+'"/>';
+    dp.forEach(p=>{h+='<circle class="rdot" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.2"/>';});
+    G.forEach((g,i)=>{
+      const p=pt(i,R+16), c=Math.cos(ang(i)), a=Math.abs(c)<.2?'middle':(c>0?'start':'end');
+      const dy=Math.sin(ang(i))<-.2?-8:(Math.sin(ang(i))>.2?12:4);
+      h+='<text class="rl'+(i===top?' top':'')+'" x="'+p[0].toFixed(1)+'" y="'+(p[1]+dy-(Math.abs(Math.sin(ang(i)))<.2?10:0)).toFixed(1)+'" text-anchor="'+a+'">'+g[0]+'</text>';
+      h+='<text class="rv" x="'+p[0].toFixed(1)+'" y="'+(p[1]+dy+(Math.abs(Math.sin(ang(i)))<.2?13:14)-(Math.abs(Math.sin(ang(i)))<.2?10:0)).toFixed(1)+'" text-anchor="'+a+'">'+Math.round(sc[i]/tot*100)+'% · '+dr[i]+' سيت</text>';
+    });
+    h+='</svg>';
+    const box=document.createElement('div'); box.className='radar';
+    box.innerHTML='<h4>تركيز الروتين · الأعلى: '+G[top][0]+'</h4>'+h+'<p class="rn">النسبة من حجم التمارين: العضلة الأساسية تحسب كاملة، والمساعدة بوزن ٠٫٣٥</p>';
+    const list=$('.list',panel); list.parentNode.insertBefore(box,list.nextSibling);
+  });
+})();
 /* ---------- swipe between days ---------- */
 (function(){
   const wrap=document.querySelector('.wrap'); if(!wrap)return;
