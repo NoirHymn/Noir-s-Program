@@ -3,15 +3,15 @@ description: جدول التمرين الأسبوعي
 publish_to: none
 version: 1.0.0+1
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.4.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
-  webview_flutter: ^4.9.0
+  webview_flutter: ^4.10.0
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
 flutter:
-  uses-material-design: true
+  uses-material-design: false
   assets:
     - assets/index.html
 flutter_launcher_icons:
